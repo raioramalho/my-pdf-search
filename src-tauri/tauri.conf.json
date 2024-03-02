@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "tauri-app",
+    "productName": "MyPdfSearch",
     "version": "0.2.0"
   },
   "tauri": {
@@ -19,9 +19,11 @@
     },
     "windows": [
       {
-        "title": "tauri-app",
+        "title": "MyPdfSearch",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "resizable": false,
+        "maximizable": false
       }
     ],
     "security": {

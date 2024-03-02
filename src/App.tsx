@@ -1,36 +1,13 @@
-// import { invoke } from "@tauri-apps/api/tauri";
-
 import "./App.css";
-// import { useState } from "react";
-import { Button } from "./components/ui/button";
-import { Input } from "./components/ui/input";
-import { ThemeToggle } from "./components/ui-theme/theme-toggle";
+import MainPanel from "./components/app/main-panel";
+import NavBar from "./components/app/nav-bar";
 
 function App() {
-  // const [greetMsg, setGreetMsg] = useState("");
-  // const [name, setName] = useState("");
-
-  // async function greet(e: any) {
-  //   e.preventDefault()
-  //   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-  //   setGreetMsg(await invoke("greet", { name }));
-  //   let data = await invoke("say_the_date", {});
-  //   console.log(data);
-  // }
 
   return (
-    <main id="main" className="flex flex-col">
-      <div id="navbar" className="p-2 m-2 flex flex-row justify-between items-center">
-        <h2>
-          Tauri + Vite + Shadcn
-        </h2>
-        <ThemeToggle/>
-      </div>
-      <div className="flex flex-col justify-center items-center">
-        <h1>My Search Pdf</h1>
-        
-      </div>
-
+    <main id="main" className="flex flex-col gap-2">
+      <NavBar />
+      <MainPanel />
     </main>
   );
 }
