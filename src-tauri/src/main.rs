@@ -14,9 +14,9 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn set_file_name(window: tauri::Window, file_name: &str) {
-    println!("fn:set_file_name: {}", file_name);
-    let _ = window.emit("file_name_event", file_name);
+fn set_file_name(app: tauri::Window, name: &str) {
+    println!("fn:set_file_name: {}", name);
+    let _ = app.emit("file_name_event", name);
 }
 
 fn main() {
