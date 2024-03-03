@@ -14,9 +14,9 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn file_dropped(file: &str) {
+fn file_dropped(window: tauri::Window,file: &str) {
     println!("fn:file_dropped: {}", file);
-    
+    let send = window.emit("file_dropped_event", file);
 }
 
 fn main() {
