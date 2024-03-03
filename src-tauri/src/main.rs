@@ -14,14 +14,14 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn file_dropped(window: tauri::Window,file: &str) {
-    println!("fn:file_dropped: {}", file);
-    let send = window.emit("file_dropped_event", file);
+fn set_file_name(window: tauri::Window, file_name: &str) {
+    println!("fn:set_file_name: {}", file_name);
+    let _ = window.emit("file_name_event", file_name);
 }
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![log, greet, file_dropped])
+        .invoke_handler(tauri::generate_handler![log, greet, set_file_name])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
