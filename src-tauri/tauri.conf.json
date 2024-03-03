@@ -10,16 +10,36 @@
     "version": "0.2.0"
   },
   "tauri": {
+    "macOSPrivateApi": true,
     "allowlist": {
       "all": false,
+      "window": {
+        "all": true
+      },
       "shell": {
         "all": false,
         "open": true
+      },
+      "fs": {
+        "all": true,
+        "copyFile": true,
+        "createDir": true,
+        "exists": true,
+        "readDir": true,
+        "readFile": true,
+        "removeDir": true,
+        "removeFile": true,
+        "renameFile": true,
+        "scope": [],
+        "writeFile": true
       }
     },
     "windows": [
       {
         "title": "MyPdfSearch",
+        "transparent": true,
+        "fileDropEnabled": true,
+        "alwaysOnTop": false,
         "width": 800,
         "height": 600,
         "resizable": false,
