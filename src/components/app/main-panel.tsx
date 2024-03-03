@@ -10,7 +10,7 @@ export default function MainPanel() {
     if(acceptedFiles.length >0) {
       setFile(acceptedFiles[0])
       invoke("log", { log: `File drop detected - fileName: ${file?.name} | fileSize: ${file?.size}`});
-      invoke("file_dropped", { fileName: file?.name })
+      invoke("file_dropped", { file_name: file?.name })
     }
   };
 
