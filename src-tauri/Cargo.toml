@@ -1,5 +1,5 @@
 [package]
-name = "MyPdfSearch"
+name = "my_pdf_search"
 version = "0.1.0"
 description = "A Tauri App"
 authors = ["Alan Ramalho"]
