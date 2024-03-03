@@ -1,9 +1,6 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-
-
-
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn log(log: &str) {
@@ -17,8 +14,8 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn file_dropped(file_name: &str) {
-    println!("fn:file_dropped: {}", file_name);
+fn file_dropped(file: &str) {
+    println!("fn:file_dropped: {}", file);
 }
 
 fn main() {

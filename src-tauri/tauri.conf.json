@@ -6,11 +6,10 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "MyPdfSearch",
+    "productName": "my_pdf_search",
     "version": "0.2.0"
   },
   "tauri": {
-    "macOSPrivateApi": true,
     "allowlist": {
       "all": false,
       "window": {
@@ -37,7 +36,6 @@
     "windows": [
       {
         "title": "MyPdfSearch",
-        "transparent": true,
         "fileDropEnabled": true,
         "alwaysOnTop": false,
         "width": 800,
