@@ -3,7 +3,7 @@ import "./App.css";
 import MainPanel from "./components/app/main-panel";
 import NavBar from "./components/app/nav-bar";
 import { Button } from "./components/ui/button";
-import { listen } from "@tauri-apps/api/event";
+import { emit, listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api";
 
 function App() {
@@ -15,16 +15,48 @@ function App() {
   })
 
   useEffect(() => {
-    if(processo === "processado") {
+    if(processo === "carregado" || "processado" || "processando") {
       setFileStatus(true);
-    }
-    if(processo === "processando") {
-      setFileStatus(false);
     }
     if(processo === "parado") {
       setFileStatus(false);
     }
   }, [processo])
+
+  useEffect(() => {
+    if(fileStatus) {
+      let input: any = window.document.getElementById("input-file");
+      input.disabled = true;
+    }else{
+      let input:any = window.document.getElementById("input-file");
+      input.disabled = false;
+    }
+  },[fileStatus])
+
+  function handleProcessarSalvar(e:any) {
+    e.preventDefault()
+    if(processo === "carregado") {
+      invoke("log", {log:`Clicou em Processar!`})
+      emit("processar_file_event", {});
+    }
+    if(processo === "processado") {
+      invoke("log", {log:`Clicou em Salvar!`})
+    }
+  }
+
+  function handleCarregarRemover(e:any) {
+    e.preventDefault()
+    invoke("log", {log:`Clicou em processar!`})
+    if(processo === "carregado" || "processado"){
+      setProcesso("parado")
+      emit("remove_file_event", processo)
+    }
+    if(processo === "parado") {
+      setProcesso("parado")
+      window.document.getElementById("input-file")?.click();
+    }
+    
+  }
 
   return (
     <main id="main" className="flex flex-col gap-2">
@@ -32,24 +64,18 @@ function App() {
       <MainPanel />
       <div className="p-2 m-4 border rounded h-[60px] flex flex-row justify-around items-center gap-2 hover:border-neutral-700">
         <Button
-          className="w-full"
-          variant={"secondary"}
-          onClick={(e) => {
-            e.preventDefault()
-            invoke("log", {log:`Clicou em processar!`})
-          }}
+          className="w-full cursor-pointer"
+          variant={processo === "carregado" ? "destructive" : "secondary"}
+          onClick={handleCarregarRemover}
         >
-          {processo === "parado" ? "Carregar" : "loading.." || processo === "processado" ? "Remover" : "loading.."}
+          {processo === "carregado" ? "Remover" : "Carregar"}
         </Button>
         <Button
-          className="w-full"
+          className="w-full cursor-pointer"
           disabled={!fileStatus ? true : false}
-          onClick={(e) => {
-            e.preventDefault()
-            invoke("log", {log:`Clicou em salvar!`})
-          }}
+          onClick={handleProcessarSalvar}
         >
-          Salvar
+          {processo === "processado" ? "Salvar" : "Processar"}
         </Button>
       </div>
     </main>
