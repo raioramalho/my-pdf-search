@@ -16,6 +16,7 @@ fn greet(name: &str) -> String {
 #[tauri::command]
 fn file_dropped(file: &str) {
     println!("fn:file_dropped: {}", file);
+    
 }
 
 fn main() {

@@ -6,10 +6,10 @@ export default function MainPanel() {
  
   const onDrop: any = (acceptedFiles: File[]) => {
     for (let file of acceptedFiles) {
-      invoke("file_dropped", { file: file.name });
       invoke("log", {
         log: `File drop detected - fileName: ${file?.name} | fileSize: ${file?.size}`,
       });
+      invoke("file_dropped", { file: file.name });
     }
   };
 
