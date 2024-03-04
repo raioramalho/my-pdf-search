@@ -3,13 +3,13 @@ import { invoke } from "@tauri-apps/api";
 import { File } from "buffer";
 import { ask  } from "@tauri-apps/api/dialog";
 import { useState } from "react";
-import SaveFileService from "@/cases/save-file.service";
+// import SaveFileService from "@/cases/save-file.service";
 import { sendNotification } from "@tauri-apps/api/notification";
 import { emit, listen } from "@tauri-apps/api/event";
 
 export default function MainPanel() {
   // Instância do serviço para salvar arquivos
-  const saveFileService = new SaveFileService('./');
+  // const saveFileService = new SaveFileService('./');
 
   // Estado para armazenar o arquivo atual e seu nome
   const [currentFile, setCurrentFile] = useState<File | any>(null);
@@ -63,7 +63,7 @@ export default function MainPanel() {
         setCurrentFileName(acceptedFile.name);
 
         // Salva o arquivo
-        let buf = acceptedFile.arrayBuffer;
+        let buf:any = acceptedFile.arrayBuffer;
         let  save = salvarArquivoPDF(acceptedFile.name, buf);
         console.log(save);
         

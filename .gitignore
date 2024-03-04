@@ -28,9 +28,9 @@ Cargo.lock
 /out/
 
 # production
-src-tauri/target
-./src-tauri/target
-/src-tauri/target
+#src-tauri/target
+#./src-tauri/target
+#/src-tauri/target
 /dist
 dist/
 /.dist/
