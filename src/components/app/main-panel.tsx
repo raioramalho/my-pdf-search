@@ -1,94 +1,108 @@
 import { DropzoneOptions, useDropzone } from "react-dropzone";
 import { invoke } from "@tauri-apps/api";
 import { File } from "buffer";
-import { Input } from "../ui/input";
-import { ask } from "@tauri-apps/api/dialog";
+import { ask  } from "@tauri-apps/api/dialog";
 import { useState } from "react";
-import { emit, listen } from "@tauri-apps/api/event";
+import SaveFileService from "@/cases/save-file.service";
 import { sendNotification } from "@tauri-apps/api/notification";
+import { emit, listen } from "@tauri-apps/api/event";
 
 export default function MainPanel() {
-  const [currentFile, setCurrentFile] = useState<File | null>();
-  const [currentFileName, setCurrentFileName] = useState("");
+  // Instância do serviço para salvar arquivos
+  const saveFileService = new SaveFileService('./');
 
-  listen("remove_file_event", (event: any) => {
-    invoke("log", {log: `event: remove_file_event: ${event.payload}`})
-    setCurrentFile(null);
-    setCurrentFileName("");
-  })
+  // Estado para armazenar o arquivo atual e seu nome
+  const [currentFile, setCurrentFile] = useState<File | any>(null);
+  const [currentFileName, setCurrentFileName] = useState<string>("");
 
-  const onDrop: any = (acceptedFiles: File[], event: any) => {
+  async function salvarArquivoPDF(nomeArquivo: string, conteudo: Promise<ArrayBuffer>): Promise<void> {
+    let buf = await conteudo;
+    invoke("log", {log: "chegou aqui!"})
+    try {
+      await invoke("salvar_arquivo_pdf", { nome_arquivo: nomeArquivo, conteudo: Array.from(new Uint8Array(buf)) });
+      invoke("log", {log: "Arquivo salvo com sucesso."});
+    } catch (error) {
+      console.error("Erro ao salvar o arquivo PDF:", error);
+    }
+  }
+
+  // Função executada quando um arquivo é solto na área de drop
+  const onDrop: DropzoneOptions["onDrop"] = (acceptedFiles) => {
+    // Verifica se algum arquivo foi aceito
+    const acceptedFile = acceptedFiles[0];
+    if (!acceptedFile) return;
+
+    // Exibe uma caixa de diálogo para confirmar o carregamento do arquivo
     ask("Deseja mesmo carregar este arquivo?", "MyPdfSearch")
       .then((res: boolean) => {
         invoke("log", { log: `Dialog response: ${String(res)}` });
-        if (res) {
-          let acceptedFile = acceptedFiles[0];
-          if (acceptedFile.type != "application/pdf") {
-            sendNotification({
-              title: `Tipo de arquivo não aceito.`,
-              body: event.payload,
-              sound: "default"
-            })
-            console.log(`Tipo não aceitado.`);
-            return;
-          } else {
-            emit("set_processo_event", "carregado");
-            invoke("log", {
-              log: `File drop detected - fileName: ${acceptedFile?.name} | fileSize: ${acceptedFile?.size}`,
-            });
-            invoke("set_file_name", { name: acceptedFiles[0].name });
-            setCurrentFile(acceptedFile);
-            setCurrentFileName(acceptedFile.name);
-            console.log(`Event:`, event);
-            console.log(`CurrentFile:`, acceptedFile);
-          }
+
+        // Se o usuário confirmou o carregamento do arquivo
+        if (!res) return;
+
+        // Verifica se o arquivo é do tipo PDF
+        if (acceptedFile.type !== "application/pdf") {
+          // Notifica o usuário sobre o tipo de arquivo não aceito
+          sendNotification({
+            title: `Tipo de arquivo não aceito.`,
+            body: acceptedFile.name,
+            sound: "default"
+          });
+          console.log(`Tipo não aceitado.`);
+          return;
         }
-        return;
+
+        // Emite um evento para sinalizar que o processo de carregamento do arquivo começou
+        emit("set_processo_event", "carregado");
+        invoke("log", {
+          log: `File drop detected - fileName: ${acceptedFile.name} | fileSize: ${acceptedFile.size}`,
+        });
+
+        // Atualiza o estado com o arquivo selecionado e seu nome
+        setCurrentFile(acceptedFile);
+        setCurrentFileName(acceptedFile.name);
+
+        // Salva o arquivo
+        let buf = acceptedFile.arrayBuffer;
+        let  save = salvarArquivoPDF(acceptedFile.name, buf);
+        console.log(save);
+        
       })
       .catch((err) => {
         invoke("log", { log: `Dialog error: ${String(err)}` });
       });
   };
 
-  // Opções do Dropzone
-  const dropzoneOptions: DropzoneOptions = {
-    onDragOver: () => {
-      invoke("log", { log: `TestDragOver!` });
-    },
-    onDragLeave: () => {
-      invoke("log", { log: `TestDragLeave!` });
-    },
-    onDrop,
-    onDropAccepted: () => {
-      invoke("log", { log: `TestDropAceppted!` });
-    },
-    onDropRejected: () => {
-      invoke("log", { log: `TestDropRejected!` });
-    },
-    // accept: ['application/json'] ,
-    multiple: false, // Defina como true se você quiser permitir a seleção de múltiplos arquivos
-  };
-
-  // UseDropzone Hook
-  const { getRootProps, getInputProps } = useDropzone(dropzoneOptions);
+  // Escuta eventos para remover ou processar arquivos
+  listen("remove_file_event", () => {
+    setCurrentFile(null);
+    setCurrentFileName("");
+  });
 
   listen("processar_file_event", () => {
-    if(currentFileName === currentFile?.name) {
+    if (currentFileName === currentFile?.name) {
       console.log(`Processar arquivo selecionado:`, currentFile);
-      invoke("log", {log: `Processando: ${currentFile.name}`})
     }
-  })
+  });
 
+  // Configurações do Dropzone
+  const dropzoneOptions: DropzoneOptions = {
+    onDrop,
+    multiple: false,
+  };
+
+  // Hook useDropzone para gerenciar a área de drop
+  const { getRootProps, getInputProps } = useDropzone(dropzoneOptions);
+
+  // Renderiza o componente
   return (
     <div className="flex flex-col justify-center items-center mr-4 ml-4 rounded">
       <div
-      // aria-disabled={currentFile === null ? false : true}
         {...getRootProps()}
         className={`border border-dashed hover:border-neutral-700 rounded-md w-full h-[400px] flex flex-col justify-center items-center text-center`}
       >
-        <Input
-        className=""
-        id="input-file"
+        <input
+          id="input-file"
           {...getInputProps()}
           aria-description="Deposite seu pdf aqui.."
         />
