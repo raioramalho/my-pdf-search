@@ -36,7 +36,7 @@ function App() {
   function handleProcessarSalvar(e:any) {
     e.preventDefault()
     if(processo === "carregado") {
-      invoke("log", {log:`Clicou em Processar!`})
+      invoke("log", {log:`Clicou em Processar/Salvar!`})
       emit("processar_file_event", {});
     }
     if(processo === "processado") {
@@ -46,7 +46,7 @@ function App() {
 
   function handleCarregarRemover(e:any) {
     e.preventDefault()
-    invoke("log", {log:`Clicou em processar!`})
+    invoke("log", {log:`Clicou em Carregar/Remover!`})
     if(processo === "carregado" || "processado"){
       setProcesso("parado")
       emit("remove_file_event", processo)

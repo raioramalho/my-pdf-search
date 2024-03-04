@@ -15,27 +15,31 @@ export default function MainPanel() {
   const [currentFile, setCurrentFile] = useState<File | any>(null);
   const [currentFileName, setCurrentFileName] = useState<string>("");
 
-  async function salvarArquivoPDF(nomeArquivo: string, conteudo: Promise<ArrayBuffer>): Promise<void> {
-    let buf = await conteudo;
-    invoke("log", {log: "chegou aqui!"})
+  async function salvarArquivoPDF(nomeArquivo: string, conteudo: ArrayBufferLike): Promise<void> {
+    // Suponha que `arrayBuffer` seja o seu ArrayBuffer
+    const uint8Array = await new Uint8Array(conteudo);
+    const byteArray = await Array.from(uint8Array);
+
     try {
-      await invoke("salvar_arquivo_pdf", { nome_arquivo: nomeArquivo, conteudo: Array.from(new Uint8Array(buf)) });
+      await invoke("salvar_arquivo_pdf", { nome: nomeArquivo, conteudo: byteArray });
+      invoke("log", {log: "chegou aqui!"})
       invoke("log", {log: "Arquivo salvo com sucesso."});
+      await emit("set_processo_event", "carregado");
     } catch (error) {
       console.error("Erro ao salvar o arquivo PDF:", error);
     }
   }
 
   // Função executada quando um arquivo é solto na área de drop
-  const onDrop: DropzoneOptions["onDrop"] = (acceptedFiles) => {
+  const onDrop: DropzoneOptions["onDrop"] = async (acceptedFiles) => {
     // Verifica se algum arquivo foi aceito
-    const acceptedFile = acceptedFiles[0];
+    let acceptedFile =  acceptedFiles[0];
     if (!acceptedFile) return;
 
     // Exibe uma caixa de diálogo para confirmar o carregamento do arquivo
     ask("Deseja mesmo carregar este arquivo?", "MyPdfSearch")
-      .then((res: boolean) => {
-        invoke("log", { log: `Dialog response: ${String(res)}` });
+      .then(async (res: boolean) => {
+        await invoke("log", { log: `Dialog response: ${String(res)}` });
 
         // Se o usuário confirmou o carregamento do arquivo
         if (!res) return;
@@ -53,8 +57,7 @@ export default function MainPanel() {
         }
 
         // Emite um evento para sinalizar que o processo de carregamento do arquivo começou
-        emit("set_processo_event", "carregado");
-        invoke("log", {
+        await invoke("log", {
           log: `File drop detected - fileName: ${acceptedFile.name} | fileSize: ${acceptedFile.size}`,
         });
 
@@ -63,8 +66,9 @@ export default function MainPanel() {
         setCurrentFileName(acceptedFile.name);
 
         // Salva o arquivo
-        let buf:any = acceptedFile.arrayBuffer;
-        let  save = salvarArquivoPDF(acceptedFile.name, buf);
+        let buf = await acceptedFile.arrayBuffer();
+        
+        let  save = await salvarArquivoPDF(acceptedFile.name, buf);
         console.log(save);
         
       })
