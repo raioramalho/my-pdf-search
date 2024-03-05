@@ -6,13 +6,14 @@ import { Button } from "./components/ui/button";
 import { emit, listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api";
 import { sendNotification } from "@tauri-apps/api/notification";
-import { Command } from '@tauri-apps/api/shell';
 
 function App() {
   const [processo, setProcesso] = useState("parado");
   const [filePath, setFilePath] = useState("");
   const [fileStatus, setFileStatus] = useState(false);
   const [fileName, setFileName] = useState("");
+
+  invoke("criar_arquivo_python", {});
 
   listen("file_name_event", (event: any) => {
     setFileName(`my-pdf-search-${event.payload}`);
