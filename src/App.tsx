@@ -5,8 +5,6 @@ import NavBar from "./components/app/nav-bar";
 import { Button } from "./components/ui/button";
 import { emit, listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api";
-import { sendNotification } from "@tauri-apps/api/notification";
-
 
 function App() {
   const [processo, setProcesso] = useState("parado");
@@ -18,11 +16,6 @@ function App() {
 
   listen("file_name_event", (event: any) => {
     setFileName(`my-pdf-search-${event.payload}`);
-    sendNotification({
-      title: `Novo arquivo carregado.`,
-      body: fileName,
-      sound: "default",
-    });
   });
 
   listen("set_processo_event", (event: any) => {
@@ -58,11 +51,6 @@ function App() {
     if (processo === "carregado") {
       await invoke("process_file", { path: filePath, file: fileName }).then((res) => {
         console.log(`process_file: ${res}`);
-        sendNotification({
-          title: `Arquivo processado.`,
-          body: fileName,
-          sound: "default",
-        });
       });      
     }
     if (processo === "processado") {
@@ -70,12 +58,18 @@ function App() {
     }
   }
 
-  function handleCarregarRemover(e: any) {
+  async function handleCarregarRemover(e: any) {
     e.preventDefault();
     invoke("log", { log: `Clicou em Carregar/Remover!` });
     if (processo === "carregado" || "processado") {
       setProcesso("parado");
+      setFilePath("");
+      setFileStatus(false);
+      setFileName("");
       emit("remove_file_event", processo);
+      if(processo === "carregado") {
+        window.location.reload();
+      }
     }
     if (processo === "parado") {
       setProcesso("parado");

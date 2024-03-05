@@ -58,8 +58,8 @@
         "title": "MyPdfSearch",
         "fileDropEnabled": true,
         "alwaysOnTop": false,
-        "width": 800,
-        "height": 600,
+        "width": 400,
+        "height": 400,
         "resizable": false,
         "maximizable": false
       }

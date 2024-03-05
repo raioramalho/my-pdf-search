@@ -28,6 +28,11 @@ export default function MainPanel() {
       });
       invoke("log", { log: "Arquivo salvo com sucesso." });
       emit("set_processo_event", "carregado");
+      sendNotification({
+        title: `Arquivo carregado com sucesso.`,
+        body: `${currentFileName}`,
+        sound: `default`
+      })
     } catch (error) {
       console.error("Erro ao salvar o arquivo PDF:", error);
     }
@@ -108,7 +113,7 @@ export default function MainPanel() {
     <div className="flex flex-col justify-center items-center mr-4 ml-4 rounded">
       <div
         {...getRootProps()}
-        className={`border border-dashed hover:border-neutral-700 rounded-md w-full h-[400px] flex flex-col justify-center items-center text-center`}
+        className={`border border-dashed hover:border-neutral-700 rounded-md w-full h-[200px] flex flex-col justify-center items-center text-center`}
       >
         <input
           id="input-file"
