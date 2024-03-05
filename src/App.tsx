@@ -7,6 +7,7 @@ import { emit, listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api";
 import { sendNotification } from "@tauri-apps/api/notification";
 
+
 function App() {
   const [processo, setProcesso] = useState("parado");
   const [filePath, setFilePath] = useState("");
@@ -55,7 +56,14 @@ function App() {
   async function handleProcessarSalvar(e: any) {
     e.preventDefault();
     if (processo === "carregado") {
-      await invoke("process_file", { path: filePath, file: fileName });
+      await invoke("process_file", { path: filePath, file: fileName }).then((res) => {
+        console.log(`process_file: ${res}`);
+        sendNotification({
+          title: `Arquivo processado.`,
+          body: fileName,
+          sound: "default",
+        });
+      });      
     }
     if (processo === "processado") {
       await invoke("log", { log: `Clicou em Salvar!` });
