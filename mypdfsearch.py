@@ -2,7 +2,9 @@
 #03032024
 
 import sys
+import aspose.words as aw
 
-arquivo = sys.argv[1]
+file = sys.argv[1]
 
-print("executei o python: "+arquivo)
+pdf = aw.Document(file)
+pdf.save('file.docx')
