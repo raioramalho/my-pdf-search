@@ -31,7 +31,7 @@ function App() {
   listen("saved_file_event", (event: any) => {
     console.log(`event: saved_file_event: ${JSON.stringify(event)}`);
     setFilePath(event.payload);
-  })
+  });
 
   useEffect(() => {
     if (processo === "carregado" || "processado" || "processando") {
@@ -55,7 +55,7 @@ function App() {
   async function handleProcessarSalvar(e: any) {
     e.preventDefault();
     if (processo === "carregado") {
-      await invoke("process_file", { path: filePath, file: fileName } )
+      await invoke("process_file", { path: filePath, file: fileName });
     }
     if (processo === "processado") {
       await invoke("log", { log: `Clicou em Salvar!` });

@@ -16,7 +16,8 @@ fn log(log: &str) {
 
 #[tauri::command]
 fn criar_arquivo_python() -> Result<(), String> {
-    let conteudo = r#"
+    let conteudo =
+        r#"
 #criado por Beatriz Brito e Alan Ramalho
 #03032024
 
@@ -24,14 +25,16 @@ import sys
 
 arquivo = sys.argv[1]
 
-print("executei o python: "+arquivo)
+print("PYTHON: Executei o python: "+arquivo)
 "#;
 
     let nome_arquivo = "mypdfsearch.py";
 
     let mut file = match File::create(nome_arquivo) {
         Ok(file) => file,
-        Err(e) => return Err(format!("Erro ao criar arquivo: {}", e)),
+        Err(e) => {
+            return Err(format!("Erro ao criar arquivo: {}", e));
+        }
     };
 
     match file.write_all(conteudo.as_bytes()) {
@@ -55,15 +58,17 @@ fn process_file(path: &str, file: &str) -> Result<String, String> {
         .arg(full_file_path)
         .output()
         .map_err(|e| format!("fn:process_file: Erro ao executar o comando: {}", e))?;
-    
+
     if output.status.success() {
-        println!("Comando executando com sucesso!: {:?}", String::from_utf8_lossy(&output.stdout).to_string());
+        println!(
+            "Comando executando com sucesso!: {:?}",
+            String::from_utf8_lossy(&output.stdout).to_string()
+        );
         Ok(String::from_utf8_lossy(&output.stdout).to_string())
     } else {
         Err(String::from_utf8_lossy(&output.stderr).to_string())
     }
 }
-
 
 #[tauri::command]
 fn salvar_arquivo_pdf(app: Window, nome: String, conteudo: Vec<u8>) {
@@ -91,7 +96,13 @@ fn main() {
     tauri::Builder
         ::default()
         .invoke_handler(
-            tauri::generate_handler![log, criar_arquivo_python, set_file_name, salvar_arquivo_pdf, process_file]
+            tauri::generate_handler![
+                log,
+                criar_arquivo_python,
+                set_file_name,
+                salvar_arquivo_pdf,
+                process_file
+            ]
         )
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

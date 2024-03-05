@@ -6,8 +6,8 @@ import React from "react";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme" >
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
       <App />
     </ThemeProvider>
-    </React.StrictMode>, 
+  </React.StrictMode>
 );

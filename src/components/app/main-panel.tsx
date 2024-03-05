@@ -66,6 +66,7 @@ export default function MainPanel() {
 
         // Atualiza o estado com o arquivo selecionado e seu nome
         setCurrentFile(acceptedFile);
+        console.log(`Arquivo aceito: ${acceptedFile}`);
         setCurrentFileName(acceptedFile.name);
 
         // Salva o arquivo
@@ -82,11 +83,15 @@ export default function MainPanel() {
   // Escuta eventos para remover ou processar arquivos
   listen("remove_file_event", () => {
     setCurrentFile(null);
+    console.log(`CurrentFile: ${currentFile}`);
     setCurrentFileName("");
   });
 
   listen("processar_file_event", (event) => {
-      console.log(`[main-panel.tsx] Processar arquivo selecionado:`, event.payload);
+    console.log(
+      `[main-panel.tsx] Processar arquivo selecionado:`,
+      event.payload
+    );
   });
 
   // Configurações do Dropzone

@@ -9,22 +9,22 @@ export default function NavBar() {
   async function listenEvents() {
     await listen("file_name_event", (event: any) => {
       setFileName(event.payload);
-  });
+    });
 
-  await listen("remove_file_event", (event: any) => {
-    invoke("log", {log: `event: remove_file_event: ${event.payload}`})
-    setFileName("");
-  })    
+    await listen("remove_file_event", (event: any) => {
+      invoke("log", { log: `event: remove_file_event: ${event.payload}` });
+      setFileName("");
+    });
   }
 
-  listenEvents()
-  
+  listenEvents();
+
   return (
     <div
       id="navbar"
       className="p-2 mr-4 ml-4 mt-4 flex flex-row justify-between items-center border rounded-md text-sm"
     >
-      <span>MyPdfSearch</span>
+      <span className="font-bold cursor-pointer">MyPdfSearch</span>
       <span>{fileName ? `${fileName}` : ``}</span>
       <ThemeToggle />
     </div>
