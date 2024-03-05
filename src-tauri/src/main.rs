@@ -3,6 +3,8 @@
 
 use std::fs;
 use std::env;
+use std::process::Command;
+use tauri::Window;
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -22,18 +24,23 @@ fn set_file_name(app: tauri::Window, name: &str) {
     let _ = app.emit("file_name_event", name);
 }
 
+#[tauri::command]
+fn process_file(file_path: &str) {
+   println!("fn:process_file: Starting process the file: {}", file_path);
+}
 
 #[tauri::command]
-fn salvar_arquivo_pdf(nome: String, conteudo: Vec<u8>) {
+fn salvar_arquivo_pdf(app: Window, nome: String, conteudo: Vec<u8>) {
     println!("fn:salvar_arquivo_pdf: Salvando arquivo..");
     let caminho_arquivo = format!("./my-pdf-search-{}", nome);
     match fs::write(&caminho_arquivo, conteudo) {
         Ok(_) => {
             
             println!("Arquivo PDF salvo em: {}", caminho_arquivo);
-        
             if let Ok(current_dir) = env::current_dir() {
                 println!("O diretório atual é: {:?}", current_dir);
+                let res = format!("{}{}",current_dir.display(),caminho_arquivo);
+                app.emit("saved_file_event", res, );
             } else {
                 println!("Não foi possível obter o diretório atual.");
             }
@@ -46,10 +53,9 @@ fn salvar_arquivo_pdf(nome: String, conteudo: Vec<u8>) {
 }
 
 
-
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![log, greet, set_file_name, salvar_arquivo_pdf])
+        .invoke_handler(tauri::generate_handler![log, greet, set_file_name, salvar_arquivo_pdf, process_file])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

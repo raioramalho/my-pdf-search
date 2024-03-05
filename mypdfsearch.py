@@ -5,4 +5,4 @@ import sys
 
 arquivo = sys.argv[1]
 
-print(arquivo)
+print("executei o python: "+arquivo)

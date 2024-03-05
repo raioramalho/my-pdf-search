@@ -6,9 +6,11 @@ import { Button } from "./components/ui/button";
 import { emit, listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api";
 import { sendNotification } from "@tauri-apps/api/notification";
+import { Command } from '@tauri-apps/api/shell';
 
 function App() {
   const [processo, setProcesso] = useState("parado");
+  const [filePath, setFilePath] = useState("");
   const [fileStatus, setFileStatus] = useState(false);
   const [fileName, setFileName] = useState("");
 
@@ -24,6 +26,11 @@ function App() {
   listen("set_processo_event", (event: any) => {
     setProcesso(event.payload);
   });
+
+  listen("saved_file_event", (event: any) => {
+    console.log(`event: ${JSON.stringify(event)}`);
+    setFilePath(event.payload);
+  })
 
   useEffect(() => {
     if (processo === "carregado" || "processado" || "processando") {
@@ -44,11 +51,12 @@ function App() {
     }
   }, [fileStatus]);
 
-  function handleProcessarSalvar(e: any) {
+  async function handleProcessarSalvar(e: any) {
     e.preventDefault();
     if (processo === "carregado") {
-      invoke("log", { log: `Clicou em Processar/Salvar! - ${fileName}` });
-      emit("processar_file_event", {});
+      emit("processar_file_event", filePath);
+      const process = await new Command("run-python-script", filePath).execute();
+      console.log(process);
     }
     if (processo === "processado") {
       invoke("log", { log: `Clicou em Salvar!` });

@@ -4,8 +4,9 @@ import { File } from "buffer";
 import { ask } from "@tauri-apps/api/dialog";
 import { useState } from "react";
 // import SaveFileService from "@/cases/save-file.service";
-import { sendNotification } from "@tauri-apps/api/notification";
+
 import { emit, listen } from "@tauri-apps/api/event";
+import { sendNotification } from "@tauri-apps/api/notification";
 
 export default function MainPanel() {
   // Estado para armazenar o arquivo atual e seu nome
@@ -84,10 +85,8 @@ export default function MainPanel() {
     setCurrentFileName("");
   });
 
-  listen("processar_file_event", () => {
-    if (currentFileName === currentFile?.name) {
-      console.log(`Processar arquivo selecionado:`, currentFile);
-    }
+  listen("processar_file_event", (event) => {
+      console.log(`[main-panel.tsx] Processar arquivo selecionado:`, event.payload);
   });
 
   // Configurações do Dropzone
