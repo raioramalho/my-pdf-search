@@ -1,30 +1,32 @@
 import { DropzoneOptions, useDropzone } from "react-dropzone";
 import { invoke } from "@tauri-apps/api";
 import { File } from "buffer";
-import { ask  } from "@tauri-apps/api/dialog";
+import { ask } from "@tauri-apps/api/dialog";
 import { useState } from "react";
 // import SaveFileService from "@/cases/save-file.service";
 import { sendNotification } from "@tauri-apps/api/notification";
 import { emit, listen } from "@tauri-apps/api/event";
 
 export default function MainPanel() {
-  // Instância do serviço para salvar arquivos
-  // const saveFileService = new SaveFileService('./');
-
   // Estado para armazenar o arquivo atual e seu nome
   const [currentFile, setCurrentFile] = useState<File | any>(null);
   const [currentFileName, setCurrentFileName] = useState<string>("");
 
-  async function salvarArquivoPDF(nomeArquivo: string, conteudo: ArrayBufferLike): Promise<void> {
+  async function salvarArquivoPDF(
+    nomeArquivo: string,
+    conteudo: ArrayBufferLike
+  ): Promise<void> {
     // Suponha que `arrayBuffer` seja o seu ArrayBuffer
-    const uint8Array = await new Uint8Array(conteudo);
-    const byteArray = await Array.from(uint8Array);
+    const uint8Array = new Uint8Array(conteudo);
+    const byteArray = Array.from(uint8Array);
 
     try {
-      await invoke("salvar_arquivo_pdf", { nome: nomeArquivo, conteudo: byteArray });
-      invoke("log", {log: "chegou aqui!"})
-      invoke("log", {log: "Arquivo salvo com sucesso."});
-      await emit("set_processo_event", "carregado");
+      await invoke("salvar_arquivo_pdf", {
+        nome: nomeArquivo,
+        conteudo: byteArray,
+      });
+      invoke("log", { log: "Arquivo salvo com sucesso." });
+      emit("set_processo_event", "carregado");
     } catch (error) {
       console.error("Erro ao salvar o arquivo PDF:", error);
     }
@@ -33,7 +35,7 @@ export default function MainPanel() {
   // Função executada quando um arquivo é solto na área de drop
   const onDrop: DropzoneOptions["onDrop"] = async (acceptedFiles) => {
     // Verifica se algum arquivo foi aceito
-    let acceptedFile =  acceptedFiles[0];
+    let acceptedFile = acceptedFiles[0];
     if (!acceptedFile) return;
 
     // Exibe uma caixa de diálogo para confirmar o carregamento do arquivo
@@ -50,7 +52,7 @@ export default function MainPanel() {
           sendNotification({
             title: `Tipo de arquivo não aceito.`,
             body: acceptedFile.name,
-            sound: "default"
+            sound: "default",
           });
           console.log(`Tipo não aceitado.`);
           return;
@@ -67,10 +69,9 @@ export default function MainPanel() {
 
         // Salva o arquivo
         let buf = await acceptedFile.arrayBuffer();
-        
-        let  save = await salvarArquivoPDF(acceptedFile.name, buf);
+
+        let save = await salvarArquivoPDF(acceptedFile.name, buf);
         console.log(save);
-        
       })
       .catch((err) => {
         invoke("log", { log: `Dialog error: ${String(err)}` });

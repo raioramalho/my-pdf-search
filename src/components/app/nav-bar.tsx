@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { ThemeToggle } from "../ui-theme/theme-toggle";
 import { listen } from "@tauri-apps/api/event";
-import { sendNotification } from "@tauri-apps/api/notification";
 import { invoke } from "@tauri-apps/api";
 
 export default function NavBar() {
@@ -10,11 +9,6 @@ export default function NavBar() {
   async function listenEvents() {
     await listen("file_name_event", (event: any) => {
       setFileName(event.payload);
-      sendNotification({
-        title: `Novo arquivo carregado.`,
-        body: event.payload,
-        sound: "default"
-      })
   });
 
   await listen("remove_file_event", (event: any) => {

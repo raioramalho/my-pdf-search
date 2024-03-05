@@ -4,6 +4,23 @@
 use std::fs;
 use std::env;
 
+// Declaração da variável global
+static mut CURRENT_FILE: Option<String> = None;
+
+// Função para atualizar o valor da variável global
+fn update_current_file(new_value: String) {
+    unsafe {
+        CURRENT_FILE = Some(new_value);
+    }
+}
+
+// Função para obter o valor atual da variável global
+fn get_current_file() -> Option<String> {
+    unsafe {
+        CURRENT_FILE.clone()
+    }
+}
+
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn log(log: &str) {
@@ -29,7 +46,10 @@ fn salvar_arquivo_pdf(nome: String, conteudo: Vec<u8>) {
     let caminho_arquivo = format!("./my-pdf-search-{}", nome);
     match fs::write(&caminho_arquivo, conteudo) {
         Ok(_) => {
+            
             println!("Arquivo PDF salvo em: {}", caminho_arquivo);
+            update_current_file(String::from(caminho_arquivo));
+            println!("Arquivo Carregado na var global {}", String::from(get_current_file()));
             // Se necessário, você pode emitir um evento aqui para notificar que o arquivo foi salvo com sucesso
             if let Ok(current_dir) = env::current_dir() {
                 println!("O diretório atual é: {:?}", current_dir);

@@ -5,57 +5,67 @@ import NavBar from "./components/app/nav-bar";
 import { Button } from "./components/ui/button";
 import { emit, listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api";
+import { sendNotification } from "@tauri-apps/api/notification";
 
 function App() {
   const [processo, setProcesso] = useState("parado");
   const [fileStatus, setFileStatus] = useState(false);
+  const [fileName, setFileName] = useState("");
+
+  listen("file_name_event", (event: any) => {
+    setFileName(`my-pdf-search-${event.payload}`);
+    sendNotification({
+      title: `Novo arquivo carregado.`,
+      body: event.payload,
+      sound: "default",
+    });
+  });
 
   listen("set_processo_event", (event: any) => {
     setProcesso(event.payload);
-  })
+  });
 
   useEffect(() => {
-    if(processo === "carregado" || "processado" || "processando") {
+    if (processo === "carregado" || "processado" || "processando") {
       setFileStatus(true);
     }
-    if(processo === "parado") {
+    if (processo === "parado") {
       setFileStatus(false);
     }
-  }, [processo])
+  }, [processo]);
 
   useEffect(() => {
-    if(fileStatus) {
+    if (fileStatus) {
       let input: any = window.document.getElementById("input-file");
       input.disabled = true;
-    }else{
-      let input:any = window.document.getElementById("input-file");
+    } else {
+      let input: any = window.document.getElementById("input-file");
       input.disabled = false;
     }
-  },[fileStatus])
+  }, [fileStatus]);
 
-  function handleProcessarSalvar(e:any) {
-    e.preventDefault()
-    if(processo === "carregado") {
-      invoke("log", {log:`Clicou em Processar/Salvar!`})
+  function handleProcessarSalvar(e: any) {
+    e.preventDefault();
+    if (processo === "carregado") {
+      invoke("log", { log: `Clicou em Processar/Salvar! - ${fileName}` });
       emit("processar_file_event", {});
     }
-    if(processo === "processado") {
-      invoke("log", {log:`Clicou em Salvar!`})
+    if (processo === "processado") {
+      invoke("log", { log: `Clicou em Salvar!` });
     }
   }
 
-  function handleCarregarRemover(e:any) {
-    e.preventDefault()
-    invoke("log", {log:`Clicou em Carregar/Remover!`})
-    if(processo === "carregado" || "processado"){
-      setProcesso("parado")
-      emit("remove_file_event", processo)
+  function handleCarregarRemover(e: any) {
+    e.preventDefault();
+    invoke("log", { log: `Clicou em Carregar/Remover!` });
+    if (processo === "carregado" || "processado") {
+      setProcesso("parado");
+      emit("remove_file_event", processo);
     }
-    if(processo === "parado") {
-      setProcesso("parado")
+    if (processo === "parado") {
+      setProcesso("parado");
       window.document.getElementById("input-file")?.click();
     }
-    
   }
 
   return (
@@ -72,7 +82,7 @@ function App() {
         </Button>
         <Button
           className="w-full cursor-pointer"
-          disabled={!fileStatus ? true : false}
+          disabled={fileStatus ? false : true}
           onClick={handleProcessarSalvar}
         >
           {processo === "processado" ? "Salvar" : "Processar"}
