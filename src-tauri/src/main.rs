@@ -3,7 +3,8 @@
 
 use std::fs;
 use std::env;
-use std::process::Command;
+use tauri::api::process::Command;
+// use std::process::Command;
 use tauri::Window;
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -25,22 +26,27 @@ fn set_file_name(app: tauri::Window, name: &str) {
 }
 
 #[tauri::command]
-fn process_file(file_path: &str) {
-   println!("fn:process_file: Starting process the file: {}", file_path);
+fn process_file(path: &str, file: &str) {
+    let full_file_path = format!("{}{}", path, file);
+   println!("fn:process_file: Starting process the file: {}", full_file_path);
+   let output = Command::new("python")
+   .args(["-c", "print('hello world!')"])
+   .output()
+   .map_err(|e| format!("Erro ao executar o comando: {}", e));
 }
 
 #[tauri::command]
 fn salvar_arquivo_pdf(app: Window, nome: String, conteudo: Vec<u8>) {
     println!("fn:salvar_arquivo_pdf: Salvando arquivo..");
-    let caminho_arquivo = format!("./my-pdf-search-{}", nome);
+    let caminho_arquivo = format!("my-pdf-search-{}", nome);
     match fs::write(&caminho_arquivo, conteudo) {
         Ok(_) => {
             
             println!("Arquivo PDF salvo em: {}", caminho_arquivo);
             if let Ok(current_dir) = env::current_dir() {
                 println!("O diretório atual é: {:?}", current_dir);
-                let res = format!("{}{}",current_dir.display(),caminho_arquivo);
-                app.emit("saved_file_event", res, );
+                let res = format!("{}/{}",current_dir.display(), nome);
+                let _ = app.emit("saved_file_event", res );
             } else {
                 println!("Não foi possível obter o diretório atual.");
             }

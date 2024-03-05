@@ -18,7 +18,7 @@ function App() {
     setFileName(`my-pdf-search-${event.payload}`);
     sendNotification({
       title: `Novo arquivo carregado.`,
-      body: event.payload,
+      body: fileName,
       sound: "default",
     });
   });
@@ -28,7 +28,7 @@ function App() {
   });
 
   listen("saved_file_event", (event: any) => {
-    console.log(`event: ${JSON.stringify(event)}`);
+    console.log(`event: saved_file_event: ${JSON.stringify(event)}`);
     setFilePath(event.payload);
   })
 
@@ -54,12 +54,10 @@ function App() {
   async function handleProcessarSalvar(e: any) {
     e.preventDefault();
     if (processo === "carregado") {
-      emit("processar_file_event", filePath);
-      const process = await new Command("run-python-script", filePath).execute();
-      console.log(process);
+      await invoke("process_file", { path: filePath, file: fileName } )
     }
     if (processo === "processado") {
-      invoke("log", { log: `Clicou em Salvar!` });
+      await invoke("log", { log: `Clicou em Salvar!` });
     }
   }
 
@@ -86,7 +84,7 @@ function App() {
           variant={processo === "carregado" ? "destructive" : "secondary"}
           onClick={handleCarregarRemover}
         >
-          {processo === "carregado" ? "Remover" : "Carregar"}
+          Carregar/Remover
         </Button>
         <Button
           className="w-full cursor-pointer"
