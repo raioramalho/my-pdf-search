@@ -20,12 +20,14 @@ fn criar_arquivo_python() -> Result<(), String> {
         r#"
 #criado por Beatriz Brito e Alan Ramalho
 #03032024
-
+        
 import sys
-
-arquivo = sys.argv[1]
-
-print("PYTHON: Executei o python: "+arquivo)
+import aspose.words as aw
+        
+file = sys.argv[1]
+        
+pdf = aw.Document(file)
+pdf.save('file.docx')
 "#;
 
     let nome_arquivo = "mypdfsearch.py";
@@ -66,6 +68,10 @@ fn process_file(path: &str, file: &str) -> Result<String, String> {
         );
         Ok(String::from_utf8_lossy(&output.stdout).to_string())
     } else {
+        println!(
+            "Comando executando com sucesso!: {:?}",
+            String::from_utf8_lossy(&output.stderr).to_string()
+        );
         Err(String::from_utf8_lossy(&output.stderr).to_string())
     }
 }
@@ -73,7 +79,7 @@ fn process_file(path: &str, file: &str) -> Result<String, String> {
 #[tauri::command]
 fn salvar_arquivo_pdf(app: Window, nome: String, conteudo: Vec<u8>) {
     println!("fn:salvar_arquivo_pdf: Salvando arquivo..");
-    let caminho_arquivo = format!("my-pdf-search-{}", nome);
+    let caminho_arquivo = format!("{}", nome);
     match fs::write(&caminho_arquivo, conteudo) {
         Ok(_) => {
             println!("Arquivo PDF salvo em: {}", caminho_arquivo);
