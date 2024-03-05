@@ -5,6 +5,7 @@ import NavBar from "./components/app/nav-bar";
 import { Button } from "./components/ui/button";
 import { emit, listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api";
+import Spinner from "./components/ui/loading";
 
 function App() {
   const [processo, setProcesso] = useState("parado");
@@ -13,6 +14,13 @@ function App() {
   const [fileName, setFileName] = useState("");
 
   invoke("criar_arquivo_python", {});
+
+  listen("arquivo_processado", (event: any)=> {
+    console.log(`Arquivo processado:`, event);
+    setFileName("file.docx");
+    setFilePath(`${filePath}/file.docx`);
+    setProcesso("processado");
+  })
 
   listen("file_name_event", (event: any) => {
     setFileName(`my-pdf-search-${event.payload}`);
@@ -46,12 +54,17 @@ function App() {
     }
   }, [fileStatus]);
 
+  async function funcProcessarArquivo() {
+    await invoke("process_file", { path: filePath, file: fileName }).then((res) => {
+      console.log(`process_file: ${res}`);
+    });  
+  }
+
   async function handleProcessarSalvar(e: any) {
     e.preventDefault();
     if (processo === "carregado") {
-      await invoke("process_file", { path: filePath, file: fileName }).then((res) => {
-        console.log(`process_file: ${res}`);
-      });      
+      setProcesso("processando");
+      funcProcessarArquivo();
     }
     if (processo === "processado") {
       await invoke("log", { log: `Clicou em Salvar!` });
@@ -66,7 +79,7 @@ function App() {
       setFilePath("");
       setFileStatus(false);
       setFileName("");
-      emit("remove_file_event", processo);
+      emit("remove_file_event", "parado");
       if(processo === "carregado") {
         window.location.reload();
       }
@@ -84,10 +97,13 @@ function App() {
       <div className="p-2 m-4 border rounded h-[60px] flex flex-row justify-around items-center gap-2 hover:border-neutral-700">
         <Button
           className="w-full cursor-pointer"
-          variant={processo === "carregado" ? "destructive" : "secondary"}
+          variant={
+            processo === "carregado" ? "destructive" : "secondary" ||
+            processo === "processando" ? "secondary" : "secondary"
+          }
           onClick={handleCarregarRemover}
         >
-          Carregar/Remover
+          { processo != "processando" ? "Carregar/Remover" : <Spinner/> }
         </Button>
         <Button
           className="w-full cursor-pointer"

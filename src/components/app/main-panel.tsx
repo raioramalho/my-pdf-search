@@ -9,7 +9,6 @@ import { emit, listen } from "@tauri-apps/api/event";
 import { sendNotification } from "@tauri-apps/api/notification";
 
 export default function MainPanel() {
-  // Estado para armazenar o arquivo atual e seu nome
   const [currentFile, setCurrentFile] = useState<File | any>(null);
   const [currentFileName, setCurrentFileName] = useState<string>("");
 

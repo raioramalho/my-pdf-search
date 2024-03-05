@@ -22,12 +22,15 @@ fn criar_arquivo_python() -> Result<(), String> {
 #03032024
         
 import sys
-import aspose.words as aw
+#import aspose.words as aw
+from pdf2docx import Converter
         
 file = sys.argv[1]
         
-pdf = aw.Document(file)
-pdf.save('file.docx')
+cv = Converter(file)
+cv.convert('./file.docx')
+# pdf = aw.Document(file)
+# pdf.save('file.docx')
 "#;
 
     let nome_arquivo = "mypdfsearch.py";
@@ -52,7 +55,7 @@ fn set_file_name(app: tauri::Window, name: &str) {
 }
 
 #[tauri::command]
-fn process_file(path: &str, file: &str) -> Result<String, String> {
+fn process_file(app: Window, path: &str, file: &str) -> Result<String, String> {
     let full_file_path = format!("{}{}", path, file);
     println!("fn:process_file: Starting process the file: {}", full_file_path);
     let output = Command::new("python3")
@@ -66,6 +69,9 @@ fn process_file(path: &str, file: &str) -> Result<String, String> {
             "Comando executando com sucesso!: {:?}",
             String::from_utf8_lossy(&output.stdout).to_string()
         );
+
+        app.emit("arquivo_processado", {});
+
         Ok(String::from_utf8_lossy(&output.stdout).to_string())
     } else {
         println!(
